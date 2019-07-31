@@ -696,7 +696,7 @@ namespace MiNET.Client
 			Log.DebugFormat("NBT:\n{0}", message.namedtag.NbtFile.RootTag);
 		}
 
-		public override void HandleMcpeFullChunkData(McpeFullChunkData message)
+		public override void HandleMcpeFullChunkData(McpeLevelChunk message)
 		{
 			if (Client.IsEmulator) return;
 

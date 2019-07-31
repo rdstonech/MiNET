@@ -124,6 +124,7 @@ namespace MiNET.Worlds
 			if (_cache != null)
 			{
 				instream.Write(_cache);
+				
 				return _cache;
 			}
 

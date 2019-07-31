@@ -126,17 +126,17 @@ namespace MiNET.Entities
 			PlayerFlags = 26,
 			BedPosition = 28,
 			Scale = 38,
-			MaxAir = 43,
-			Markings = 44,
-			CollisionBoxWidth = 54,
-			CollisionBoxHeight = 55,
+			MaxAir = 42,
+			Markings = 43,
+			CollisionBoxWidth = 53,
+			CollisionBoxHeight = 54,
 
-			DataFuseLength = 56,
+			DataFuseLength = 55,
 
-			RiderSeatPosition = 57,
-			RiderRotationLocked = 58,
-			RiderMaxRotation = 59,
-			RiderMinRotation = 60,
+			RiderSeatPosition = 56,
+			RiderRotationLocked = 57,
+			RiderMaxRotation = 58,
+			RiderMinRotation = 59,
 
 			EntityFlags2 = 92, // same treatment as 0 flags, perhaps
 

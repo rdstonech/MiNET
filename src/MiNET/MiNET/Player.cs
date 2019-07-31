@@ -295,7 +295,10 @@ namespace MiNET
 				dataInfo.chunkCount = 1;
 				dataInfo.compressedPackageSize = 359901; // Lenght of data
 				dataInfo.hash = new byte[] { 57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18 };
+				dataInfo.isPremium = false;
+				dataInfo.packType = 1;
 				SendPacket(dataInfo);
+				
 				return;
 			}
 			else if (message.responseStatus == 3)
@@ -2849,7 +2852,7 @@ namespace MiNET
 				{
 					for (int z = -1; z <= 1; z++)
 					{
-						McpeFullChunkData chunk = new McpeFullChunkData();
+						McpeLevelChunk chunk = new McpeLevelChunk();
 						chunk.chunkX = chunkPosition.X + x;
 						chunk.chunkZ = chunkPosition.Z + z;
 						chunk.chunkData = new byte[0];

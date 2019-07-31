@@ -1167,6 +1167,7 @@ namespace MiNET.Net
 			{
 				Write(blockstate.Value.Name);
 				Write(blockstate.Value.Data);
+				Write((short) blockstate.Value.Id);
 			}
 		}
 

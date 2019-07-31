@@ -9,6 +9,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>C:\Users\fabia\develop\csharp\projects\ShadowPixel\Server\</OutputPath>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Remove="log4net.xml" />

@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 354;
-		public const string GameVersion = "1.11.4";
+		public const int ProtocolVersion = 361;
+		public const string GameVersion = "1.12.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -150,7 +150,7 @@ namespace MiNET.Net
 		void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message);
 		void HandleMcpeAdventureSettings(McpeAdventureSettings message);
 		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
-		void HandleMcpeFullChunkData(McpeFullChunkData message);
+		void HandleMcpeFullChunkData(McpeLevelChunk message);
 		void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message);
 		void HandleMcpeSetDifficulty(McpeSetDifficulty message);
 		void HandleMcpeChangeDimension(McpeChangeDimension message);
@@ -270,7 +270,7 @@ namespace MiNET.Net
 			else if (typeof(McpeGuiDataPickItem) == message.GetType()) _messageHandler.HandleMcpeGuiDataPickItem((McpeGuiDataPickItem) message);
 			else if (typeof(McpeAdventureSettings) == message.GetType()) _messageHandler.HandleMcpeAdventureSettings((McpeAdventureSettings) message);
 			else if (typeof(McpeBlockEntityData) == message.GetType()) _messageHandler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
-			else if (typeof(McpeFullChunkData) == message.GetType()) _messageHandler.HandleMcpeFullChunkData((McpeFullChunkData) message);
+			else if (typeof(McpeLevelChunk) == message.GetType()) _messageHandler.HandleMcpeFullChunkData((McpeLevelChunk) message);
 			else if (typeof(McpeSetCommandsEnabled) == message.GetType()) _messageHandler.HandleMcpeSetCommandsEnabled((McpeSetCommandsEnabled) message);
 			else if (typeof(McpeSetDifficulty) == message.GetType()) _messageHandler.HandleMcpeSetDifficulty((McpeSetDifficulty) message);
 			else if (typeof(McpeChangeDimension) == message.GetType()) _messageHandler.HandleMcpeChangeDimension((McpeChangeDimension) message);
@@ -650,7 +650,7 @@ namespace MiNET.Net
 						packet.Decode(buffer);
 						return packet;
 					case 0x3a:
-						packet = McpeFullChunkData.CreateObject();
+						packet = McpeLevelChunk.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 					case 0x3b:
@@ -2392,12 +2392,15 @@ namespace MiNET.Net
 		public bool mapEnabled; // = null;
 		public int permissionLevel; // = null;
 		public int serverChunkTickRange; // = null;
+		
 		public bool hasLockedBehaviorPack; // = null;
 		public bool hasLockedResourcePack; // = null;
 		public bool isFromLockedWorldTemplate; // = null;
 		public bool useMsaGamertagsOnly; // = null;
 		public bool isFromWorldTemplate; // = null;
 		public bool isWorldTemplateOptionLocked; // = null;
+		public bool onlySpawnV1Villagers;
+		
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
@@ -2406,7 +2409,6 @@ namespace MiNET.Net
 		public int enchantmentSeed; // = null;
 		public Blockstates blockstates; // = null;
 		public string multiplayerCorrelationId; // = null;
-		public byte unknown2; // = null;
 
 		public McpeStartGame()
 		{
@@ -2457,6 +2459,7 @@ namespace MiNET.Net
 			Write(useMsaGamertagsOnly);
 			Write(isFromWorldTemplate);
 			Write(isWorldTemplateOptionLocked);
+			Write(onlySpawnV1Villagers);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
@@ -2464,8 +2467,8 @@ namespace MiNET.Net
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockstates);
+			WriteUnsignedVarInt(0); //Item id list
 			Write(multiplayerCorrelationId);
-			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -2516,6 +2519,7 @@ namespace MiNET.Net
 			useMsaGamertagsOnly = ReadBool();
 			isFromWorldTemplate = ReadBool();
 			isWorldTemplateOptionLocked = ReadBool();
+			onlySpawnV1Villagers = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
@@ -2523,8 +2527,8 @@ namespace MiNET.Net
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockstates = ReadBlockstates();
+			ReadUnsignedVarInt(); //TODO: item list
 			multiplayerCorrelationId = ReadString();
-			unknown2 = ReadByte();
 
 			AfterDecode();
 		}
@@ -2573,6 +2577,7 @@ namespace MiNET.Net
 			useMsaGamertagsOnly=default(bool);
 			isFromWorldTemplate=default(bool);
 			isWorldTemplateOptionLocked=default(bool);
+			onlySpawnV1Villagers = default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
@@ -2581,7 +2586,6 @@ namespace MiNET.Net
 			enchantmentSeed=default(int);
 			blockstates=default(Blockstates);
 			multiplayerCorrelationId=default(string);
-			unknown2=default(byte);
 		}
 
 	}
@@ -5385,14 +5389,18 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeFullChunkData : Packet<McpeFullChunkData>
+	public partial class McpeLevelChunk : Packet<McpeLevelChunk>
 	{
 
 		public int chunkX; // = null;
 		public int chunkZ; // = null;
+
+		public uint subChunkCount;
+		public bool cacheEnabled;
+		
 		public byte[] chunkData; // = null;
 
-		public McpeFullChunkData()
+		public McpeLevelChunk()
 		{
 			Id = 0x3a;
 			IsMcpe = true;
@@ -5406,6 +5414,10 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(chunkX);
 			WriteSignedVarInt(chunkZ);
+			
+			WriteUnsignedVarInt(subChunkCount);
+			Write(cacheEnabled);
+			
 			WriteByteArray(chunkData);
 
 			AfterEncode();
@@ -5422,6 +5434,10 @@ namespace MiNET.Net
 
 			chunkX = ReadSignedVarInt();
 			chunkZ = ReadSignedVarInt();
+
+			subChunkCount = ReadUnsignedVarInt();
+			cacheEnabled = ReadBool();
+			
 			chunkData = ReadByteArray();
 
 			AfterDecode();
@@ -5434,9 +5450,11 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			chunkX=default(int);
-			chunkZ=default(int);
-			chunkData=default(byte[]);
+			chunkX = default(int);
+			chunkZ = default(int);
+			subChunkCount = default(uint);
+			cacheEnabled = default(bool);
+			chunkData = default(byte[]);
 		}
 
 	}
@@ -6645,6 +6663,8 @@ namespace MiNET.Net
 		public uint chunkCount; // = null;
 		public ulong compressedPackageSize; // = null;
 		public byte[] hash; // = null;
+		public bool isPremium;
+		public byte packType;
 
 		public McpeResourcePackDataInfo()
 		{
@@ -6663,6 +6683,8 @@ namespace MiNET.Net
 			Write(chunkCount);
 			Write(compressedPackageSize);
 			WriteByteArray(hash);
+			Write(isPremium);
+			Write(packType);
 
 			AfterEncode();
 		}
@@ -6681,6 +6703,8 @@ namespace MiNET.Net
 			chunkCount = ReadUint();
 			compressedPackageSize = ReadUlong();
 			hash = ReadByteArray();
+			isPremium = ReadBool();
+			packType = ReadByte();
 
 			AfterDecode();
 		}
@@ -6692,11 +6716,13 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			packageId=default(string);
-			maxChunkSize=default(uint);
-			chunkCount=default(uint);
-			compressedPackageSize=default(ulong);
-			hash=default(byte[]);
+			packageId = default(string);
+			maxChunkSize = default(uint);
+			chunkCount = default(uint);
+			compressedPackageSize = default(ulong);
+			hash = default(byte[]);
+			isPremium = default(bool);
+			packType = default(byte);
 		}
 
 	}

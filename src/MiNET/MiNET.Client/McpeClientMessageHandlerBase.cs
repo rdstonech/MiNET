@@ -219,7 +219,7 @@ namespace MiNET.Client
 		}
 
 		public abstract void HandleMcpeBlockEntityData(McpeBlockEntityData message);
-		public abstract void HandleMcpeFullChunkData(McpeFullChunkData message);
+		public abstract void HandleMcpeFullChunkData(McpeLevelChunk message);
 		public abstract void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message);
 		public abstract void HandleMcpeSetDifficulty(McpeSetDifficulty message);
 
